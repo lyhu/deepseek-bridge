@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>DeepSeek Web to API Bridge</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部导航 -->
+    <header class="header">
+      <div class="logo-box">
+        <img id="logoImg" src="../icons/icon-inactive-48.png" width="24" height="24" style="border-radius: 5px;" alt="DeepSeek Bridge" />
+        <div class="logo-text">
+          <h1>DeepSeek Bridge</h1>
+          <span class="version-tag">v0.2.0</span>
+        </div>
+      </div>
+      <div id="statusBadge" class="status-badge status-stopped">未启动</div>
+    </header>
+
+    <!-- 核心操作卡片 -->
+    <main class="main-card">
+      <div class="action-row">
+        <div class="action-info">
+          <div class="action-title">本地 OpenAI 代理网关</div>
+          <div id="serviceUrl" class="action-sub">http://127.0.0.1:8765/v1</div>
+        </div>
+        <button id="toggleBtn" class="btn btn-primary">启动服务</button>
+      </div>
+
+      <!-- 快捷状态指示 -->
+      <div class="indicators-grid">
+        <div class="indicator-item">
+          <span id="dotPort" class="dot dot-gray"></span>
+          <span class="indicator-label">端口 8765</span>
+        </div>
+        <div class="indicator-item">
+          <span id="dotWeb" class="dot dot-gray"></span>
+          <span id="webStatusText" class="indicator-label">API 专用实例</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- 快捷复制与配置 -->
+    <section class="quick-tools">
+      <button id="openPlaygroundBtn" class="tool-btn tool-btn-highlight" title="在新标签页中打开可视化对话调试工作台">
+        <span>🎮 对话调试台 ↗</span>
+      </button>
+      <button id="copyUrlBtn" class="tool-btn">
+        <span>📋 复制 API 地址</span>
+      </button>
+      <button id="toggleDedicatedBtn" class="tool-btn" title="一键在前台查看与后台静默之间切换 API 专用网页">
+        <span id="txtDedicatedBtn">👁️ 呼出专用网页</span>
+      </button>
+    </section>
+
+    <!-- 支持模型列表 (一键复制) -->
+    <section class="models-section">
+      <div class="models-header">
+        <span class="models-title">支持模型 (点击直接复制)</span>
+      </div>
+      <div class="models-chips">
+        <div class="model-chip" data-copy="deepseek-chat" title="点击复制模型名称: deepseek-chat">
+          <span class="chip-name">deepseek-chat</span>
+          <span class="chip-tag">极速</span>
+          <span class="chip-icon">📋</span>
+        </div>
+        <div class="model-chip" data-copy="deepseek-reasoner" title="点击复制模型名称: deepseek-reasoner">
+          <span class="chip-name">deepseek-reasoner</span>
+          <span class="chip-tag">R1思考</span>
+          <span class="chip-icon">📋</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 实时调试日志 -->
+    <section class="logs-section">
+      <div class="logs-header">
+        <span class="logs-title">实时交互日志</span>
+        <button id="clearLogsBtn" class="btn-text">清空</button>
+      </div>
+      <div id="logsBox" class="logs-box">
+        <div class="log-line log-info">[系统就绪] 点击上方按钮一键启动代理服务</div>
+      </div>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

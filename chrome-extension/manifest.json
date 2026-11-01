@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "DeepSeek Web to API Bridge",
+  "version": "0.2.0",
+  "description": "一键将 DeepSeek 网页端代理为本地标准 OpenAI 接口，供 Bob、沉浸式翻译等客户端使用",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2VzeSvNJ6Z2VwZrdgrg2WVxOOXvtnSicRxaoTlHJLGyJySiCe62ukHPsQz/DxaUmHuYzUASMcIr3N/K2Giiiv+mAsWQvahMYTY5KA7UowaHW72ftfwup387bQL8g0LreYOJMHGikmnZTMrNI97TCgtTmb7GUkX3tl9yEqJKIx40MApeVFThGjzqT+e93fu44/RtnUG7S/23oYR895NrymC0J+y9Ndwrir6ZClLi8vNjARCtALrnbYJa3hzj3jXbrIFdGuDmuTsVh0LSFw0dLLpWbfahJU8HBOaXXSyGs/Pwkm4PL+9PfzW0evCadVASmq3XCxeNNPa4ywKld2gzM7QIDAQAB",
+  "permissions": [
+    "tabs",
+    "alarms",
+    "nativeMessaging",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://chat.deepseek.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon-inactive-16.png",
+    "32": "icons/icon-inactive-32.png",
+    "48": "icons/icon-inactive-48.png",
+    "128": "icons/icon-inactive-128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-inactive-16.png",
+      "32": "icons/icon-inactive-32.png",
+      "48": "icons/icon-inactive-48.png",
+      "128": "icons/icon-inactive-128.png"
+    },
+    "default_title": "DeepSeek 代理网关 (未启动)"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.deepseek.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://chat.deepseek.com/*"
+      ],
+      "js": [
+        "injected.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    }
+  ]
+}

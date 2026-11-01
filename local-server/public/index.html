@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeepSeek Bridge 交互式调试工作台</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --purple: #8b5cf6;
+      --purple-hover: #7c3aed;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #334155;
+      --radius: 12px;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 顶部导航 */
+    header {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag-v {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .top-status-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .dot.online {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .dot.offline {
+      background: var(--danger);
+    }
+
+    .btn-quick {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-tertiary);
+      color: var(--text-main);
+      border: 1px solid transparent;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-quick:hover {
+      background: #475569;
+      border-color: var(--border);
+    }
+
+    /* 主布局 */
+    .app-main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* 侧边栏：模型列表与控制 */
+    .sidebar {
+      width: 340px;
+      border-right: 1px solid var(--border);
+      background: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 模型卡片 */
+    .model-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .model-card:hover {
+      border-color: #475569;
+      transform: translateY(-1px);
+    }
+
+    .model-card.active {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.08);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .model-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .model-name {
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: #e2e8f0;
+    }
+
+    .model-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .model-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .copy-chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-chip:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    /* 快捷配置选项 */
+    .param-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--bg-tertiary);
+      transition: .3s;
+      border-radius: 22px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--accent);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(18px);
+    }
+
+    /* 预设 prompt 灵感标签 */
+    .preset-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .preset-chip {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .preset-chip:hover {
+      border-color: var(--accent);
+      color: #fff;
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* cURL 快捷命令芯片 */
+    .preset-curl-chip {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed rgba(59, 130, 246, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .preset-curl-chip:hover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .curl-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .curl-title {
+      font-weight: 500;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .curl-code-preview {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #94a3b8;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 8px;
+      border-radius: 4px;
+      white-space: pre;
+      overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* 右侧主对话区 */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+      position: relative;
+    }
+
+    .messages-stream {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .welcome-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.4));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .welcome-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .welcome-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .api-info-box {
+      margin-top: 14px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #38bdf8;
+      border: 1px dashed #334155;
+    }
+
+    /* 消息气泡 */
+    .msg-row {
+      display: flex;
+      gap: 12px;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .msg-user .msg-avatar {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .msg-assistant .msg-avatar {
+      background: #8b5cf6;
+      color: #fff;
+    }
+
+    .msg-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .msg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .msg-role-name {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .msg-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: #f1f5f9;
+      white-space: pre-wrap;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .msg-user .msg-content {
+      background: #1e3a5f;
+      border-color: #2563eb;
+    }
+
+    .msg-meta-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* 输入框容器 */
+    .chat-input-area {
+      border-top: 1px solid var(--border);
+      background: var(--bg-secondary);
+      padding: 16px 24px;
+    }
+
+    .input-box-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .textarea-container {
+      position: relative;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .textarea-container:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    textarea#promptInput {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      min-height: 60px;
+      max-height: 200px;
+      font-family: inherit;
+    }
+
+    .input-bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .action-btns {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-send {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-send:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .btn-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      color: #fff;
+      background: var(--bg-tertiary);
+    }
+
+    /* 实时原始包抽屉 / Debug 控制台 */
+    .debug-drawer {
+      border-top: 1px solid var(--border);
+      background: #090d16;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #a5b4fc;
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 10px 24px;
+      display: none;
+    }
+
+    .debug-drawer.open {
+      display: block;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部状态导航 -->
+  <header>
+    <div class="brand-area">
+      <span class="brand-logo">⚡</span>
+      <div class="brand-title">
+        DeepSeek Bridge 对话调试台
+        <span class="tag-v">Playground</span>
+      </div>
+    </div>
+
+    <div class="top-status-group">
+      <div class="status-pill">
+        <span id="dotGateway" class="dot"></span>
+        <span id="txtGateway">服务检测中...</span>
+      </div>
+      <div class="status-pill">
+        <span id="dotExtension" class="dot"></span>
+        <span id="txtExtension">Chrome 扩展检测中...</span>
+      </div>
+      <button id="btnCopyBase" class="btn-quick" title="复制用于填入第三方客户端的 Base URL">
+        📋 复制 Base URL
+      </button>
+      <button id="btnCopyKey" class="btn-quick" title="复制默认 API Key">
+        🔑 复制 Key
+      </button>
+      <button id="btnToggleDebug" class="btn-quick">
+        🔍 原始流包
+      </button>
+    </div>
+  </header>
+
+  <!-- 主体工作区 -->
+  <main class="app-main">
+    <!-- 左侧：模型列表与高级开关 -->
+    <aside class="sidebar">
+      <div class="panel-section">
+        <div class="section-title">
+          <span>当前可用模型</span>
+          <span style="font-size: 11px; color: var(--accent); font-weight: normal;">点击切换</span>
+        </div>
+
+        <div id="modelList">
+          <!-- 模型 1 -->
+          <div class="model-card active" data-model="deepseek-chat">
+            <div class="model-header">
+              <span class="model-name">deepseek-chat</span>
+              <span class="copy-chip" onclick="copyText('deepseek-chat', '已复制模型名: deepseek-chat')">复制</span>
+            </div>
+            <div class="model-desc">极速纯文本对话、日常翻译润色与知识问答。毫秒级首字出词响应。</div>
+          </div>
+
+          <!-- 模型 2 -->
+          <div class="model-card" data-model="deepseek-reasoner">
+            <div class="model-header">
+              <span class="model-name">deepseek-reasoner</span>
+              <span class="copy-chip" onclick="copyText('deepseek-reasoner', '已复制模型名: deepseek-reasoner')">复制</span>
+            </div>
+            <div class="model-desc">DeepSeek R1 深度思考模式。擅长数学推导、算法分析与复杂逻辑推演。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">功能开关</div>
+
+        <div class="param-row">
+          <span>深度思考 (R1)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="chkThinking">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="param-row">
+          <span>联网搜索 (智能搜索)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="chkSearch" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="param-row">
+          <span>流式传输 (SSE Stream)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="chkStream" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel-section" style="flex: 1;">
+        <div class="section-title">快捷预设测试用例</div>
+        <div class="preset-chips">
+          <!-- cURL 终端命令行测试用例与一键复制 -->
+          <div class="preset-chip preset-curl-chip" onclick="copyCurlCommand(event)" title="点击直接一键复制 cURL 命令行">
+            <div class="curl-header">
+              <span class="curl-title">⚡ cURL 命令行调用</span>
+              <span class="copy-chip" onclick="copyCurlCommand(event)">一键复制</span>
+            </div>
+            <div class="curl-code-preview" id="curlPreview">curl http://127.0.0.1:8765/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-deepseek" \
+  -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"你好"}],"stream":true}'</div>
+          </div>
+
+          <div class="preset-chip" onclick="fillPrompt('请将以下这段英文技术文档润色为地道、专业的中文：\n\nCross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that allows a server to indicate any origins other than its own from which a browser should permit loading resources.')">
+            📝 文本润色与技术翻译
+          </div>
+          <div class="preset-chip" onclick="selectModel('deepseek-reasoner'); fillPrompt('某养殖场有三个笼子 A、B、C，每笼都同时养着鸡和兔（每笼鸡、兔各至少 1 只）。已知：(1) 三笼合计 100 个头、272 只脚；(2) B 笼头数比 A 笼多 8，C 笼头数与 B 笼相同；(3) B 笼兔数是 A 笼兔数的 3/2；(4) C 笼兔数是 A 笼兔数的 2 倍。求：(a) 三笼各自鸡、兔数量；(b) 若要让三笼兔数相等（鸡兔总数不变，只移兔不移鸡，不允许出现负数），且 A 与 C 之间不能直接调运、必须经 B 中转，最少需要移动多少次（每次移 1 只兔）？请给出完整解题过程。')">
+            🧮 复杂数学推理 (鸡兔同笼题)
+          </div>
+          <div class="preset-chip" onclick="fillPrompt('写一个高效的 JavaScript 防抖 (debounce) 和节流 (throttle) 函数，附带 TypeScript 类型注解，并说明其在前端输入框搜索中的最佳实践。')">
+            💻 代码实现与审查
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧：交互对话区 -->
+    <section class="chat-container">
+      <div id="messagesStream" class="messages-stream">
+        <div class="welcome-card">
+          <div class="welcome-title">
+            <span>✨ 欢迎使用 DeepSeek 交互式本地调试台</span>
+          </div>
+          <div class="welcome-text">
+            本页面直接调用本地 <code>http://127.0.0.1:8765/v1/chat/completions</code> 标准接口。你可以在这里即时测试模型生成效果、观察深度思考与联网搜索的实时交互，无需在第三方客户端反复排查配置。
+          </div>
+          <div class="api-info-box">
+            <span>Base URL: <b>http://127.0.0.1:8765/v1</b></span>
+            <span class="copy-chip" onclick="copyText('http://127.0.0.1:8765/v1', '已复制 Base URL')">一键复制</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 实时流式 Debug 抽屉 -->
+      <div id="debugDrawer" class="debug-drawer">
+        <div style="color: #64748b; margin-bottom: 4px;">// 实时 SSE 数据包原始日志:</div>
+        <div id="debugContent">等待发送请求...</div>
+      </div>
+
+      <!-- 底部输入区 -->
+      <div class="chat-input-area">
+        <div class="input-box-wrapper">
+          <div class="textarea-container">
+            <textarea id="promptInput" placeholder="输入你要测试的问题或提示词... (Enter 发送，Shift+Enter 换行)"></textarea>
+            <div class="input-bottom-bar">
+              <span class="input-hint" id="statusHint">当前选中: deepseek-chat</span>
+              <div class="action-btns">
+                <button id="btnClear" class="btn-secondary">清空会话</button>
+                <button id="btnSend" class="btn-send">
+                  <span>发送测试</span>
+                  <span>🚀</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast">已复制到剪贴板</div>
+
+  <script>
+    let currentModel = 'deepseek-chat';
+    let isGenerating = false;
+    let abortController = null;
+
+    const messagesStream = document.getElementById('messagesStream');
+    const promptInput = document.getElementById('promptInput');
+    const btnSend = document.getElementById('btnSend');
+    const btnClear = document.getElementById('btnClear');
+    const chkThinking = document.getElementById('chkThinking');
+    const chkSearch = document.getElementById('chkSearch');
+    const chkStream = document.getElementById('chkStream');
+    const statusHint = document.getElementById('statusHint');
+    const dotGateway = document.getElementById('dotGateway');
+    const txtGateway = document.getElementById('txtGateway');
+    const dotExtension = document.getElementById('dotExtension');
+    const txtExtension = document.getElementById('txtExtension');
+    const debugDrawer = document.getElementById('debugDrawer');
+    const debugContent = document.getElementById('debugContent');
+    const toast = document.getElementById('toast');
+
+    // 提示通知
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function copyText(val, tip = '已复制') {
+      navigator.clipboard.writeText(val).then(() => showToast(tip));
+    }
+
+    document.getElementById('btnCopyBase').onclick = () => copyText('http://127.0.0.1:8765/v1', '已复制 Base URL: http://127.0.0.1:8765/v1');
+    document.getElementById('btnCopyKey').onclick = () => copyText('sk-deepseek', '已复制 API Key: sk-deepseek');
+    document.getElementById('btnToggleDebug').onclick = () => debugDrawer.classList.toggle('open');
+
+    // cURL 命令行生成与一键复制
+    const curlPreview = document.getElementById('curlPreview');
+
+    function getCurlCommand() {
+      const model = currentModel || 'deepseek-chat';
+      const stream = chkStream ? chkStream.checked : true;
+      const userText = (promptInput && promptInput.value && promptInput.value.trim()) 
+        ? promptInput.value.trim() 
+        : '你好，请用一句话介绍你自己';
+      const escapedText = userText.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+      return `curl http://127.0.0.1:8765/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk-deepseek" \\
+  -d '{
+    "model": "${model}",
+    "messages": [
+      {"role": "user", "content": "${escapedText}"}
+    ],
+    "stream": ${stream}
+  }'`;
+    }
+
+    function updateCurlPreview() {
+      if (!curlPreview) return;
+      const model = currentModel || 'deepseek-chat';
+      const stream = chkStream ? chkStream.checked : true;
+      curlPreview.textContent = `curl http://127.0.0.1:8765/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk-deepseek" \\
+  -d '{"model":"${model}","messages":[{"role":"user","content":"你好"}],"stream":${stream}}'`;
+    }
+
+    function copyCurlCommand(e) {
+      if (e) e.stopPropagation();
+      const cmd = getCurlCommand();
+      copyText(cmd, '已复制 cURL 命令行，可在终端直接粘贴执行');
+    }
+
+    // 模型选择
+    function selectModel(modelName) {
+      currentModel = modelName;
+      document.querySelectorAll('.model-card').forEach(card => {
+        if (card.dataset.model === modelName) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+      // 切换到 reasoner 时自动勾选深度思考
+      if (modelName.includes('reasoner') || modelName.includes('r1')) {
+        chkThinking.checked = true;
+      }
+      statusHint.textContent = `当前选中: ${currentModel} | 思考: ${chkThinking.checked ? '开' : '关'} | 搜索: ${chkSearch.checked ? '开' : '关'}`;
+      updateCurlPreview();
+    }
+
+    document.querySelectorAll('.model-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.classList.contains('copy-chip')) return;
+        selectModel(card.dataset.model);
+      });
+    });
+
+    chkThinking.addEventListener('change', () => {
+      statusHint.textContent = `当前选中: ${currentModel} | 思考: ${chkThinking.checked ? '开' : '关'} | 搜索: ${chkSearch.checked ? '开' : '关'}`;
+    });
+    chkSearch.addEventListener('change', () => {
+      statusHint.textContent = `当前选中: ${currentModel} | 思考: ${chkThinking.checked ? '开' : '关'} | 搜索: ${chkSearch.checked ? '开' : '关'}`;
+    });
+    chkStream.addEventListener('change', () => {
+      updateCurlPreview();
+    });
+
+    function fillPrompt(text) {
+      promptInput.value = text;
+      promptInput.focus();
+    }
+
+    // 健康巡检
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          const data = await res.json();
+          dotGateway.className = 'dot online';
+          txtGateway.textContent = '网关在线 (:8765)';
+
+          if (data.extensionConnected) {
+            dotExtension.className = 'dot online';
+            txtExtension.textContent = `扩展已连接 (队列: ${data.queuedTasks || 0})`;
+          } else {
+            dotExtension.className = 'dot offline';
+            txtExtension.textContent = '扩展未连接 (请确认打开了 DeepSeek)';
+          }
+        } else {
+          throw new Error('500');
+        }
+      } catch (e) {
+        dotGateway.className = 'dot offline';
+        txtGateway.textContent = '服务离线';
+        dotExtension.className = 'dot offline';
+        txtExtension.textContent = '扩展未连接';
+      }
+    }
+    checkHealth();
+    setInterval(checkHealth, 3000);
+
+    // 动态拉取模型列表
+    async function loadModels() {
+      try {
+        const res = await fetch('/v1/models');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.data) && data.data.length > 0) {
+            // 保持展示
+          }
+        }
+      } catch (e) {}
+    }
+    loadModels();
+
+    // 消息追加
+    function appendMessage(role, text = '') {
+      const row = document.createElement('div');
+      row.className = `msg-row msg-${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = role === 'user' ? '👤' : '⚡';
+
+      const body = document.createElement('div');
+      body.className = 'msg-body';
+
+      const header = document.createElement('div');
+      header.className = 'msg-header';
+
+      const roleName = document.createElement('span');
+      roleName.className = 'msg-role-name';
+      roleName.textContent = role === 'user' ? '你 (User)' : `DeepSeek (${currentModel})`;
+
+      const actionSpan = document.createElement('span');
+      actionSpan.className = 'copy-chip';
+      actionSpan.textContent = '复制内容';
+      actionSpan.onclick = () => copyText(contentDiv.textContent, '回答内容已复制');
+
+      header.appendChild(roleName);
+      if (role === 'assistant') header.appendChild(actionSpan);
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'msg-content';
+      contentDiv.textContent = text;
+
+      const metaBar = document.createElement('div');
+      metaBar.className = 'msg-meta-bar';
+
+      body.appendChild(header);
+      body.appendChild(contentDiv);
+      body.appendChild(metaBar);
+
+      row.appendChild(avatar);
+      row.appendChild(body);
+      messagesStream.appendChild(row);
+      messagesStream.scrollTop = messagesStream.scrollHeight;
+
+      return { row, contentDiv, metaBar };
+    }
+
+    // 发送消息
+    async function handleSend() {
+      const prompt = promptInput.value.trim();
+      if (!prompt || isGenerating) return;
+
+      isGenerating = true;
+      btnSend.disabled = true;
+      btnSend.innerHTML = '<span>思考中...</span> ⏳';
+
+      appendMessage('user', prompt);
+      promptInput.value = '';
+
+      const { contentDiv, metaBar } = appendMessage('assistant', '');
+      contentDiv.textContent = '正在通过本地代理调度 DeepSeek 网页端...';
+
+      const startTime = Date.now();
+      let firstTokenTime = null;
+      let fullText = '';
+      debugContent.textContent = '';
+
+      abortController = new AbortController();
+
+      try {
+        const isStream = chkStream.checked;
+        const bodyPayload = {
+          model: currentModel,
+          messages: [{ role: 'user', content: prompt }],
+          stream: isStream,
+          thinking: chkThinking.checked,
+          search: chkSearch.checked
+        };
+
+        const res = await fetch('/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer sk-deepseek'
+          },
+          body: JSON.stringify(bodyPayload),
+          signal: abortController.signal
+        });
+
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(errJson.error?.message || `HTTP ${res.status} 错误`);
+        }
+
+        if (isStream) {
+          contentDiv.textContent = '';
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // 保留不完整行
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith('data:')) continue;
+              if (trimmed === 'data: [DONE]') continue;
+
+              debugContent.textContent += trimmed + '\n';
+              debugDrawer.scrollTop = debugDrawer.scrollHeight;
+
+              try {
+                const json = JSON.parse(trimmed.replace(/^data:\s*/, ''));
+                if (json.error) {
+                  throw new Error(json.error.message);
+                }
+                const chunk = json.choices?.[0]?.delta?.content || '';
+                if (chunk) {
+                  if (!firstTokenTime) {
+                    firstTokenTime = Date.now();
+                  }
+                  fullText += chunk;
+                  contentDiv.textContent = fullText;
+                  messagesStream.scrollTop = messagesStream.scrollHeight;
+                }
+              } catch (e) {
+                if (e.message && !e.message.includes('Unexpected')) {
+                  throw e;
+                }
+              }
+            }
+          }
+        } else {
+          const json = await res.json();
+          fullText = json.choices?.[0]?.message?.content || '';
+          contentDiv.textContent = fullText;
+        }
+
+        const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        const ttft = firstTokenTime ? ((firstTokenTime - startTime) / 1000).toFixed(2) + 's' : '-';
+        metaBar.textContent = `首字延迟 (TTFT): ${ttft} | 总耗时: ${totalTime}s | 字数: ${fullText.length}`;
+
+      } catch (err) {
+        contentDiv.style.borderColor = 'var(--danger)';
+        contentDiv.textContent = `❌ 请求异常: ${err.message}\n\n排查建议：\n1. 检查浏览器中 https://chat.deepseek.com 页面是否处于登录状态且已按 F5 刷新；\n2. 检查 Chrome 扩展图标中的服务是否处于“运行中”；\n3. 确认网络正常，网页输入框无验证码拦截弹窗。`;
+        metaBar.textContent = `请求失败 | 耗时: ${((Date.now() - startTime) / 1000).toFixed(2)}s`;
+      } finally {
+        isGenerating = false;
+        btnSend.disabled = false;
+        btnSend.innerHTML = '<span>发送测试</span> 🚀';
+        abortController = null;
+      }
+    }
+
+    btnSend.addEventListener('click', handleSend);
+    promptInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    btnClear.addEventListener('click', () => {
+      messagesStream.innerHTML = '';
+      showToast('会话已清空');
+    });
+  </script>
+</body>
+</html>

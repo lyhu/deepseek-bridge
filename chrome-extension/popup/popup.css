@@ -1,0 +1,362 @@
+:root {
+  --primary: #10a37f;
+  --primary-hover: #0e8c6d;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --bg-main: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --terminal-bg: #0f172a;
+  --terminal-text: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 460px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-size: 13px;
+}
+
+.container {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 头部 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 20px;
+}
+
+.logo-text h1 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.version-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: ui-monospace, monospace;
+}
+
+.status-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.status-running {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-stopped {
+  background-color: #f1f5f9;
+  color: var(--text-muted);
+}
+
+/* 主卡片 */
+.main-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.action-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.action-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: ui-monospace, monospace;
+}
+
+.btn {
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-hover);
+}
+
+/* 状态指示点 */
+.indicators-grid {
+  display: flex;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.indicator-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-green {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.dot-gray {
+  background-color: #cbd5e1;
+}
+
+.dot-red {
+  background-color: #ef4444;
+}
+
+/* 快捷工具按钮 */
+.quick-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.tool-btn {
+  flex: 1;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.tool-btn:hover {
+  background: #f1f5f9;
+}
+
+.tool-btn-highlight {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.tool-btn-highlight:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.active-pill {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.badge-exist {
+  font-size: 10px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+/* 支持模型卡片 */
+.models-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.models-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.models-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.models-chips {
+  display: flex;
+  gap: 8px;
+}
+
+.model-chip {
+  flex: 1;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.model-chip:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.chip-name {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: ui-monospace, monospace;
+  color: #1e293b;
+}
+
+.chip-tag {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.chip-icon {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* 实时日志区 */
+.logs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logs-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-text:hover {
+  color: var(--text-main);
+}
+
+.logs-box {
+  height: 140px;
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
+  border-radius: 6px;
+  padding: 8px;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  overflow-y: auto;
+  word-break: break-all;
+}
+
+.log-line {
+  margin-bottom: 4px;
+}
+
+.log-info {
+  color: #38bdf8;
+}
+
+.log-success {
+  color: #4ade80;
+}
+
+.log-warn {
+  color: #facc15;
+}
+
+.log-err {
+  color: #f87171;
+}

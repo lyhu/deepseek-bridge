@@ -1,0 +1,21 @@
+{
+  "name": "deepseek-bridge",
+  "version": "1.0.0",
+  "description": "DeepSeek 网页端转本地 OpenAI 兼容 API 桥接网关",
+  "main": "local-server/server.js",
+  "scripts": {
+    "start": "node local-server/server.js",
+    "test": "node test/run-all-tests.js",
+    "package": "node scripts/build-package.js",
+    "build": "node scripts/build-package.js"
+  },
+  "keywords": [
+    "deepseek",
+    "openai",
+    "proxy",
+    "translate",
+    "bridge"
+  ],
+  "author": "",
+  "license": "Apache-2.0"
+}
