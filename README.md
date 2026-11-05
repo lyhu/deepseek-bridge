@@ -24,10 +24,10 @@
 
 ### 1. End Users (3 Steps, Zero Command Line)
 
-Extract the portable release archive `deepseek-bridge-v0.2.0-portable.zip`:
+Extract the portable release archive `deepseek-bridge-v0.2.1-portable.zip`:
 
 ```
-Extracted Package (deepseek-bridge-v0.2.0-portable)
+Extracted Package (deepseek-bridge-v0.2.1-portable)
   ├── 1. Open Chrome at chrome://extensions/, enable [Developer mode], click [Load unpacked], and select the chrome-extension directory
   ├── 2. Double-click to register the host service:
   │      • macOS: Double-click install.command (shows system confirmation dialog)
@@ -116,9 +116,9 @@ The script outputs clean distribution artifacts under `dist/`:
 
 | Artifact | Size | Target Scenario | Key Highlights |
 | :--- | :---: | :--- | :--- |
-| **`dist/deepseek-bridge-v0.2.0-portable.zip`**<br>*(Recommended)* | **1.09 MB** | General distribution (GitHub Releases, cloud drives, sharing) | • **No `npm install` needed**: Pre-packaged 4MB production dependencies.<br>• **No CLI required**: Includes macOS `install.command` and Windows `install.bat`.<br>• **Deterministic ID**: Fixed extension key ensures consistent Extension ID across machines. |
-| **`dist/deepseek-extension-v0.2.0.zip`** | **39.45 KB** | Extension-only distribution | Standalone Chrome extension package for existing users. |
-| **`dist/deepseek-bridge-v0.2.0-portable/`** | Directory | Unpacked testing directory | Complete ready-to-test folder structure. |
+| **`dist/deepseek-bridge-v0.2.1-portable.zip`**<br>*(Recommended)* | **1.09 MB** | General distribution (GitHub Releases, cloud drives, sharing) | • **No `npm install` needed**: Pre-packaged 4MB production dependencies.<br>• **No CLI required**: Includes macOS `install.command` and Windows `install.bat`.<br>• **Deterministic ID**: Fixed extension key ensures consistent Extension ID across machines. |
+| **`dist/deepseek-extension-v0.2.1.zip`** | **39.45 KB** | Extension-only distribution | Standalone Chrome extension package for existing users. |
+| **`dist/deepseek-bridge-v0.2.1-portable/`** | Directory | Unpacked testing directory | Complete ready-to-test folder structure. |
 
 ---
 
