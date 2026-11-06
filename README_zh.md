@@ -24,10 +24,10 @@
 
 ### 1. 终端用户（3 步开箱即用，零命令行）
 
-从发布包解压 `deepseek-bridge-v0.2.0-portable.zip` 后：
+从发布包解压 `deepseek-bridge-v0.2.1-portable.zip` 后：
 
 ```
-解压便携包 (deepseek-bridge-v0.2.0-portable)
+解压便携包 (deepseek-bridge-v0.2.1-portable)
   ├── 1. 打开 Chrome 访问 chrome://extensions/ 开启【开发者模式】，点击【加载已解压的扩展程序】，选择 chrome-extension 目录
   ├── 2. 双击注册服务：
   │      • macOS 用户：双击 install.command（系统弹窗提示注册成功）
@@ -116,9 +116,9 @@ npm run package
 
 | 产物文件 | 体积 | 适用分发场景 | 核心优势 |
 | :--- | :---: | :--- | :--- |
-| **`dist/deepseek-bridge-v0.2.0-portable.zip`**<br>*(推荐主力分发)* | **1.09 MB** | **向所有终端用户推广分发**（网盘分享、Release、邮件传发） | • **免 npm install**：已预置 4MB 极简生产依赖，解压即用。<br>• **免命令行**：内置 Mac `install.command` 与 Win `install.bat` 双击一键安装脚本。<br>• **ID 严格固定**：内置固定公钥 Key，不同电脑加载后扩展 ID 绝对一致，与 Native Host 完美绑定。 |
-| **`dist/deepseek-extension-v0.2.0.zip`** | **39.45 KB** | **纯 Chrome 插件独立更新场景** | 仅包含轻量浏览器扩展核心文件，供老用户单独更新插件。 |
-| **`dist/deepseek-bridge-v0.2.0-portable/`** | 目录 | 本地免解压直接测试/归档目录 | 包含完整的未压缩绿色结构及《快速安装使用指南.txt》。 |
+| **`dist/deepseek-bridge-v0.2.1-portable.zip`**<br>*(推荐主力分发)* | **1.09 MB** | **向所有终端用户推广分发**（网盘分享、Release、邮件传发） | • **免 npm install**：已预置 4MB 极简生产依赖，解压即用。<br>• **免命令行**：内置 Mac `install.command` 与 Win `install.bat` 双击一键安装脚本。<br>• **ID 严格固定**：内置固定公钥 Key，不同电脑加载后扩展 ID 绝对一致，与 Native Host 完美绑定。 |
+| **`dist/deepseek-extension-v0.2.1.zip`** | **39.45 KB** | **纯 Chrome 插件独立更新场景** | 仅包含轻量浏览器扩展核心文件，供老用户单独更新插件。 |
+| **`dist/deepseek-bridge-v0.2.1-portable/`** | 目录 | 本地免解压直接测试/归档目录 | 包含完整的未压缩绿色结构及《快速安装使用指南.txt》。 |
 
 ---
 

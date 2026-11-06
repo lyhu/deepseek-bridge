@@ -3,7 +3,9 @@
 NODE_BIN=$(which node 2>/dev/null)
 
 if [ -z "$NODE_BIN" ]; then
-  for p in /usr/local/bin/node /opt/homebrew/bin/node /usr/bin/node "$HOME/.nvm/versions/node/"*/bin/node "$HOME/.asdf/shims/node" "$HOME/.volta/bin/node"; do
+  # Chrome 以 GUI 方式拉起 Native Host 时 PATH 通常只有系统目录，
+  # 因此需要枚举各版本管理器的绝对路径（fnm/nvm/volta/asdf 等）
+  for p in /usr/local/bin/node /opt/homebrew/bin/node /usr/bin/node "$HOME/.nvm/versions/node/"*/bin/node "$HOME/.asdf/shims/node" "$HOME/.volta/bin/node" "$HOME/.local/share/fnm/node-versions/"*/installation/bin/node "$HOME/.local/state/fnm_multishells/"*/bin/node; do
     if [ -x "$p" ]; then
       NODE_BIN="$p"
       break

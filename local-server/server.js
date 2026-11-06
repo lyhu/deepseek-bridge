@@ -232,11 +232,18 @@ app.post('/v1/chat/completions', (req, res) => {
     ? web_search
     : (typeof search === 'boolean' ? search : true);
 
+  // 兼容 OpenAI 的 content 数组格式 (如 [{type:'text',text:'...'}])
+  function normalizeContent(c) {
+    if (Array.isArray(c)) return c.map(p => (typeof p === 'string' ? p : (p && p.text) || '')).join('');
+    return c == null ? '' : String(c);
+  }
+
   // 将多轮或 system+user 消息合并为紧凑的翻译指令
   const prompt = messages
     .map(m => {
-      if (m.role === 'system') return `[指令要求]\n${m.content}`;
-      return m.content;
+      const text = normalizeContent(m.content);
+      if (m.role === 'system') return `[指令要求]\n${text}`;
+      return text;
     })
     .join('\n\n');
 

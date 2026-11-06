@@ -34,7 +34,7 @@
   function createStreamParser() {
     let currentFragmentType = 'RESPONSE'; // 默认为 RESPONSE 模式
 
-    return function parsePacket(jsonObj) {
+    return function (jsonObj) {
       if (!jsonObj) return '';
 
       // 1. 检查会话初始化中的 fragments (区分 THINK 或 RESPONSE)
@@ -50,17 +50,27 @@
         return '';
       }
 
-      // 2. 检查片段切换（例如由 THINK 思考片段切换为 RESPONSE 正式回复片段）
-      if (jsonObj.p === 'response/fragments' && Array.isArray(jsonObj.v)) {
-        for (const item of jsonObj.v) {
+      // 2. 检查片段切换（例如由 THINK/SEARCH 片段切换为 RESPONSE 正式回复片段）
+      const applyFragments = function (items) {
+        let text = '';
+        for (const item of items) {
           if (item.type) {
             currentFragmentType = item.type;
-            if (item.type === 'RESPONSE' && item.content) {
-              return item.content;
-            }
+            if (item.type === 'RESPONSE' && item.content) text += item.content;
           }
         }
-        return '';
+        return text;
+      };
+      if (jsonObj.p === 'response/fragments' && Array.isArray(jsonObj.v)) {
+        return applyFragments(jsonObj.v);
+      }
+      // 搜索场景：片段追加嵌套在 {"p":"response","o":"BATCH","v":[{"p":"fragments","o":"APPEND","v":[...]}]} 中
+      if (jsonObj.p === 'response' && jsonObj.o === 'BATCH' && Array.isArray(jsonObj.v)) {
+        let text = '';
+        for (const op of jsonObj.v) {
+          if (op.p === 'fragments' && Array.isArray(op.v)) text += applyFragments(op.v);
+        }
+        return text;
       }
 
       // 3. 过滤状态控制包（如 response/status、response/quasi_status）
@@ -143,8 +153,15 @@
       let buffer = '';
 
       // 实时监听流式数据推入
-      this.addEventListener('progress', () => {
-        const currentText = this.responseText || '';
+      let progressCount = 0;
+      const consume = () => {
+        let currentText = '';
+        try {
+          currentText = this.responseText || '';
+        } catch (e) {
+          sendLog(`[XHR] 读取 responseText 失败(responseType=${this.responseType}): ${e.message}`);
+          return;
+        }
         const rawNewText = currentText.slice(lastIndex);
         lastIndex = currentText.length;
 
@@ -171,10 +188,17 @@
             // 忽略非 JSON 数据行
           }
         }
+      };
+
+      this.addEventListener('progress', () => {
+        progressCount++;
+        consume();
       });
 
       // 监听请求结束
       const onEnd = () => {
+        // progress 可能未触发或有遗漏，结束时再消费一次尚未处理的 responseText
+        consume();
         // 处理最后残余的一行
         if (buffer.trim().startsWith('data:')) {
           try {
@@ -187,7 +211,7 @@
           } catch (e) {}
         }
 
-        sendLog(`[XHR] 完成数据流接收，共推送有效增量块: ${chunkCount}，总字符数: ${fullText.length}`);
+        sendLog(`[XHR] 完成数据流接收，progress 次数: ${progressCount}，响应字节: ${lastIndex}，共推送有效增量块: ${chunkCount}，总字符数: ${fullText.length}`);
         sendToContent({ requestId: activeReqId, text: fullText, done: true });
 
         if (currentRequestId === activeReqId) {
